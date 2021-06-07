@@ -18,4 +18,5 @@ Route::get('/', function () {
     return view('main');
 });
 
-Route::get('/post', [PostController::class, 'getList']);
+Route::resource('post', PostController::class);
+
