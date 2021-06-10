@@ -11,7 +11,10 @@
             .body {width:100%; position: relative;}
 
             .top {width:100%; position: relative; margin-bottom: 30px;}
-            .top .title {width:900px; position: relative; margin: 0 auto; text-align: center; font-size: 4em;}
+            .top .title_area {width:900px; position: relative; margin: 0 auto;}
+            .top .title_area .title {width:100%; text-align: center; font-size: 4em;}
+            .top .title_area .login {position: absolute; bottom:0px; right:10px; cursor: pointer;}
+            .top .title_area .logout {position: absolute; bottom:0px; right:10px; cursor: pointer;}
             .contents {width:100%; position: relative;}
 
             /* post list */
@@ -41,7 +44,14 @@
     </head>
     <body>
         <div class="top">
-            <div class="title">Forum - KimBY</div>
+            <div class="title_area">
+                <div class="title">Forum - KimBY</div>
+                @if($login !== "Y")
+                <div class="login" id="goLogin">로그인</div>
+                @else
+                <div class="logout" id="goLogout">로그아웃</div>
+                @endif
+            </div>
         </div>
         <div class="contents">
         </div>
@@ -54,8 +64,59 @@
                     }
                 });
 
+                $('#goLogin').click(function(e) {
+                    e.preventDefault();
+
+                    loginPop();
+                });
+
+                $('#goLogout').click(function(e) {
+                    e.preventDefault();
+
+                    ajaxLogout();
+                });
+
                 ajaxPostList(1);
             });
+
+            function loginPop() {
+                window.open('/login', '_blank', "toolbar=no,scrollbars=no,resizable=no,width=500,height=600");
+            }
+
+            function ajaxLogout() {
+                $.ajax({
+                    type: "GET",
+                    url:"/logout/",
+                    dataType:"json",
+                    success : function(result){
+                        location.reload();
+                    },
+                    error : function(a, b, c){
+                        console.log(a + b + c);
+                    }
+                });
+            }
+
+            function ajaxPostStore(postFormData) {
+                $.ajax({
+                    type: "POST",
+                    url:"/post",
+                    data:postFormData,
+                    dataType:"json",
+                    success : function(result){
+                        if(result.result == "success") {
+                            alert(result.msg);
+
+                            ajaxPostList(1);
+                        } else {
+                            alert(result.msg);
+                        }
+                    },
+                    error : function(a, b, c){
+                        console.log(a + b + c);
+                    }
+                });
+            }
 
             function ajaxPostList(page) {
                 $.ajax({

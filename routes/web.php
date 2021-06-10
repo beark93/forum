@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\AuthController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,8 +16,12 @@ use App\Http\Controllers\PostController;
 */
 
 Route::get('/', function () {
-    return view('main');
+    return view('main', ['login' => session('login')]);
 });
+
+Route::get('/login', [AuthController::class, 'index']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/logout', [AuthController::class, 'logout']);
 
 Route::resource('post', PostController::class);
 
