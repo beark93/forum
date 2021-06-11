@@ -19,7 +19,7 @@ class AuthController extends Controller
     public function index()
     {
         // post 리스트 view
-        return view('post.loginform');
+        return view('login.loginform');
     }
 
     /**
@@ -48,7 +48,7 @@ class AuthController extends Controller
         // post 조회
         $user = User::where($userInfo)->first();
 
-        session(['id' => $user->id, 'name' => $user->name, 'login' => "Y"]);
+        session(['no' => $user->no, 'id' => $user->id, 'name' => $user->name, 'login' => "Y"]);
 
         $err = array(
             'result' => "success",
@@ -67,9 +67,9 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->session()->forget('id');
-        $request->session()->forget('name');
-        $request->session()->forget('login');
+        $request->session()->forget(['id', 'name', 'login']);
+
+        $request->session()->regenerate();
 
         $err = array(
             'result' => "success",

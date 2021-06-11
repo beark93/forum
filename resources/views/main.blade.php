@@ -154,9 +154,13 @@
                 $.ajax({
                     type: "GET",
                     url:"/post/create",
-                    dataType:"text",
+                    dataType:"json",
                     success : function(result){
-                        $('.contents').html(result);
+                        if(result.result == "success") {
+                            $('.contents').html(result);
+                        } else {
+                            alert(result.msg)
+                        }
                     },
                     error : function(a, b, c){
                         alert(a + b + c);

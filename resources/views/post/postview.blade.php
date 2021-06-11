@@ -15,7 +15,9 @@
         {{ $post->content }}
     </div>
     <div class="btn_area">
+        @if($edit == "Y")
         <div class="edit" id="edit" no="{{ $post->no }}">수정</div>
+        @endif
         <div class="delete" id="delete" no="{{ $post->no }}">삭제</div>
         <div class="back" id="goList">뒤로</div>
     </div>

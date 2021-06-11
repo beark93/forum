@@ -26,14 +26,15 @@
                     </div>
                 </div>
                 <div class="btn_area">
-                    <div class="btn_submit login" id="auth">로그인</div>
+                    <div class="btn_submit join" id="join">회원가입</div>
+                    <div class="btn_submit login" id="login">로그인</div>
                 </div>
             </form>
         </div>
 
         <script>
             $(function() {
-                $('#auth').click(function(e) {
+                $('#login').click(function(e) {
                     e.preventDefault();
 
                     if(formCheck() === false) {
@@ -43,6 +44,12 @@
                     var postFormData = $("form[name=loginForm]").serialize();
 
                     ajaxLoginAuth(postFormData);
+                });
+
+                $('#join').click(function(e) {
+                    e.preventDefault();
+
+                    location.href = './user/create';
                 });
             });
 
@@ -71,6 +78,8 @@
                     success : function(result){
                         if(result.result == "success") {
                             alert(result.msg);
+
+                            window.opener.location.reload();
 
                             window.close();
                         } else {

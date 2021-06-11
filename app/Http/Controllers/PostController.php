@@ -53,12 +53,36 @@ class PostController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
+        // 로그인 확인
+        $sessionUser = $request->sessionUser;
+        if($sessionUser['login'] !== "Y") {
+            $result = array(
+                'result' => "err",
+                'msg' => '로그인 후 글쓰기가 가능합니다.'
+            );
+            return json_encode($result);
+        }
+
+        $post = array(
+            'no' => "",
+            'title' => "",
+            'content' => ""
+        );
+
         // post 작성 view
-        return view('post.postform', ['mode' => "create"]);
+        $view = view('post.postform', ['mode' => "create", 'post' => (object)$post]);
+
+        $result = array(
+            'result' => "success",
+            'view' => $view->render()
+        );
+        return json_encode($result);
+
     }
 
     /**
@@ -69,6 +93,16 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        // 로그인 확인
+        $sessionUser = $request->sessionUser;
+        if($sessionUser['login'] !== "Y") {
+            $result = array(
+                'result' => "err",
+                'msg' => '로그인 후 글쓰기가 가능합니다.'
+            );
+            return json_encode($result);
+        }
+
         // 유효성 검사
         $validator = Validator::make($request->all(), [
             'title' => ['required', 'max:20'],
@@ -93,7 +127,7 @@ class PostController extends Controller
         // post 생성
         $post = new Post;
 
-        $post->user_no = 3;
+        $post->user_no = $sessionUser['no'];
         $post->title = $request->title;
         $post->content = $request->content;
 
@@ -110,11 +144,15 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $no
      * @return \Illuminate\Http\Response
      */
-    public function show($no)
+    public function show(Request $request, $no)
     {
+        // 로그인 확인
+        $sessionUser = $request->sessionUser;
+
         // post 존재 확인
         $count = Post::where('no', $no)->count();
         if($count <= 0) {
@@ -133,7 +171,10 @@ class PostController extends Controller
         $user = User::where('no', $post->user_no)->first();
         $post->writer = $user->name;
 
-        $view = view('post.postview', ['post' => $post]);
+        $edit = "N";
+        if($sessionUser['no'] == $user->no) $edit = "Y";
+
+        $view = view('post.postview', ['post' => $post, 'edit' => $edit]);
 
         // post 작성 view
         $result = array(
@@ -146,11 +187,22 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $no
      * @return \Illuminate\Http\Response
      */
-    public function edit($no)
+    public function edit(Request $request, $no)
     {
+        // 로그인 확인
+        $sessionUser = $request->sessionUser;
+        if($sessionUser['login'] !== "Y") {
+            $result = array(
+                'result' => "err",
+                'msg' => '작성자 본인만 수정 가능합니다.'
+            );
+            return json_encode($result);
+        }
+
         // post 존재 확인
         $count = Post::where('no', $no)->count();
         if($count <= 0) {
@@ -168,6 +220,15 @@ class PostController extends Controller
         // member 조회
         $user = User::where('no', $post->user_no)->first();
         $post->writer = $user->name;
+
+        if($sessionUser['no'] !== $user->no) {
+            $err = array(
+                'result' => "err",
+                'msg' => "작성자 본인만 수정 가능합니다."
+            );
+
+            return json_encode($err);
+        }
 
         $view = view('post.postform', ['post' => $post, 'mode' => "update"]);
 
